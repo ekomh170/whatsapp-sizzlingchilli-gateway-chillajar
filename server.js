@@ -12,12 +12,17 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
+// Deteksi OS Linux untuk menyesuaikan argumen puppeteer
+const isLinux = process.platform === "linux";
+
 // Inisialisasi WhatsApp client
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        // Jika di Linux (umumnya server/headless), tambahkan argumen agar puppeteer bisa jalan tanpa sandbox
+        // Jika di Windows/Mac (lokal), argumen dikosongkan agar tidak error
+        args: isLinux ? ["--no-sandbox", "--disable-setuid-sandbox"] : [],
     },
 });
 
