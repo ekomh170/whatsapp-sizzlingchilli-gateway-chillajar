@@ -78,3 +78,6 @@ typings/
 # IDE's
 .idea
 .vscode
+
+# Private keys and sensitive files
+chill-ajar-sizzlingchili.pem
