@@ -24,9 +24,15 @@ const client = new Client({
 client.initialize();
 
 client.on("qr", (qr) => {
-    console.log("QR RECEIVED", qr);
-    QRCode.toFile("wa-qr.png", qr, () => {
-        console.log("QR code disimpan ke wa-qr.png");
+    // Timpa file wa-qr.png jika sudah ada
+    QRCode.toFile("wa-qr.png", qr, { overwrite: true }, (err) => {
+        if (err) {
+            console.error("Gagal membuat QR code:", err);
+        } else {
+            console.log(
+                "QR code disimpan ke wa-qr.png (ditimpa jika sudah ada)"
+            );
+        }
     });
 });
 
