@@ -4,6 +4,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { Client, LocalAuth } = require("./index");
+const QRCode = require("qrcode");
 require("dotenv").config();
 
 const app = express();
@@ -21,6 +22,9 @@ client.initialize();
 
 client.on("qr", (qr) => {
     console.log("QR RECEIVED", qr);
+    QRCode.toFile("wa-qr.png", qr, () => {
+        console.log("QR code disimpan ke wa-qr.png");
+    });
 });
 
 let isClientReady = false;
