@@ -81,3 +81,9 @@ typings/
 
 # Private keys and sensitive files
 chill-ajar-sizzlingchili.pem
+
+# qr code
+wa-qr.png
+
+# notes
+notes/
