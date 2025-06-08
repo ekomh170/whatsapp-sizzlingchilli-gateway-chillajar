@@ -1,6 +1,10 @@
 # WhatsApp SizzlingChilli Gateway ChillAjar
 
-Gateway open source berbasis whatsapp-web.js untuk mengirim notifikasi WhatsApp otomatis dari sistem Chill Ajar.
+> **Disclaimer**
+>
+> Aplikasi ini **bukan hasil karya saya pribadi**. Saya hanya menggunakan dan memodifikasi dari [whatsapp-web.js](https://wwebjs.dev/). Terima kasih banyak kepada developer whatsapp-web.js yang telah membuat library ini dan saya izin menggunakan untuk keperluan tugas kampus.
+
+Gateway  whatsapp-web.js untuk mengirim notifikasi WhatsApp otomatis dari sistem Chill Ajar.
 
 ## Fitur Utama
 - Mengirim pesan WhatsApp ke pelanggan secara otomatis saat event tertentu (misal: mentor klik "Selesai Sesi" di aplikasi Chill Ajar).
@@ -20,12 +24,6 @@ Gateway open source berbasis whatsapp-web.js untuk mengirim notifikasi WhatsApp 
 - Nomor WhatsApp sistem hanya bisa aktif di satu device/browser pada satu waktu.
 - Untuk multi-device/multi-sender, perlu modifikasi lebih lanjut.
 - Pastikan port 3000 (atau port yang digunakan) terbuka untuk backend.
-
----
-
-Untuk setup dan integrasi detail, lihat README atau file panduan di repo ini.
-
----
 
 <div align="center">
     <br />
