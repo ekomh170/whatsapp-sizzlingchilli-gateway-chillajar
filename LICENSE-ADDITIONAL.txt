@@ -1,0 +1,19 @@
+# Additional License Notice
+
+This project is a modification and usage of the open source library [whatsapp-web.js](https://wwebjs.dev/) by Pedro S Lopez, licensed under the Apache License 2.0. All original code and documentation remain under the Apache License 2.0 as provided in the LICENSE file.
+
+## Additional Notice for Modifications (Chill Ajar)
+
+Modifications, configuration, and additional documentation made for integration with the Chill Ajar system (including setup, deployment scripts, and endpoint adjustments) may be used, copied, modified, and distributed for educational, academic, or internal development purposes, provided that:
+
+- The original license (Apache License 2.0) is retained and not removed.
+- Attribution is given to the original developer (Pedro S Lopez, whatsapp-web.js) and the modifier (Eko Muchamad Haryono, Chill Ajar).
+- This file (LICENSE-ADDITIONAL.txt) is included with any distribution of the modified project.
+
+For any use beyond these terms, please refer to the Apache License 2.0 and the whatsapp-web.js repository.
+
+---
+
+**Note:**
+- All core WhatsApp gateway features remain subject to the license and copyright of whatsapp-web.js.
+- The Chill Ajar modifications only apply to integration adjustments and additional documentation.
