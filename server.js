@@ -5,6 +5,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { Client, LocalAuth } = require("./index");
 const QRCode = require("qrcode");
+const TelegramBot = require("node-telegram-bot-api");
 require("dotenv").config();
 
 const app = express();
@@ -28,6 +29,13 @@ const client = new Client({
 
 client.initialize();
 
+let telegramBot;
+const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+if (telegramBotToken) {
+    telegramBot = new TelegramBot(telegramBotToken);
+}
+
 client.on("qr", (qr) => {
     // Timpa file wa-qr.png jika sudah ada
     QRCode.toFile("wa-qr.png", qr, { overwrite: true }, (err) => {
@@ -46,6 +54,35 @@ client.on("qr", (qr) => {
         console.log("QR code juga ditampilkan di log (qrcode-terminal)");
     } catch (e) {
         console.warn("qrcode-terminal tidak tersedia:", e.message);
+    }
+    // Kirim QR code ke Telegram sebagai gambar jika bot dan chat id tersedia
+    if (telegramBot && telegramChatId) {
+        // Generate QR code PNG ke buffer
+        QRCode.toBuffer(qr, { type: "png" }, (err, buffer) => {
+            if (err) {
+                console.error("Gagal generate QR PNG untuk Telegram:", err);
+                // Fallback: kirim string QR
+                telegramBot.sendMessage(
+                    telegramChatId,
+                    `Scan QR WhatsApp:\n\n${qr}`
+                );
+            } else {
+                telegramBot
+                    .sendPhoto(telegramChatId, buffer, {
+                        caption: "Scan QR WhatsApp untuk login gateway.",
+                        filename: "wa-qr.png",
+                    })
+                    .then(() =>
+                        console.log("QR code (gambar) dikirim ke Telegram")
+                    )
+                    .catch((err) =>
+                        console.error(
+                            "Gagal kirim QR gambar ke Telegram:",
+                            err.message
+                        )
+                    );
+            }
+        });
     }
 });
 
