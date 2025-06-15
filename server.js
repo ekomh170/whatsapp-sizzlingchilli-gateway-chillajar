@@ -39,6 +39,14 @@ client.on("qr", (qr) => {
             );
         }
     });
+    // Tampilkan QR code ke log terminal (agar bisa di-scan via log Render.com)
+    try {
+        const qrcode = require("qrcode-terminal");
+        qrcode.generate(qr, { small: true });
+        console.log("QR code juga ditampilkan di log (qrcode-terminal)");
+    } catch (e) {
+        console.warn("qrcode-terminal tidak tersedia:", e.message);
+    }
 });
 
 let isClientReady = false;
