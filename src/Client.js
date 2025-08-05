@@ -1,6 +1,7 @@
 'use strict';
 
 const EventEmitter = require('events');
+EventEmitter.defaultMaxListeners = 20;
 const puppeteer = require('puppeteer');
 const moduleRaid = require('@pedroslopez/moduleraid/moduleraid');
 
