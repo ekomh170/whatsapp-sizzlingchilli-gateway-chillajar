@@ -38,7 +38,7 @@ services:
       - wa_media:/app/media
       - wa_logs:/app/logs
     networks:
-      - chillajar-network
+      - chillajar-backend-laravel_chillajar-network
       - wa-network
     labels:
       - "traefik.enable=false"
@@ -50,7 +50,7 @@ services:
       start_period: 120s
 
 networks:
-  chillajar-network:
+  chillajar-backend-laravel_chillajar-network:
     external: true
   wa-network:
     driver: bridge
