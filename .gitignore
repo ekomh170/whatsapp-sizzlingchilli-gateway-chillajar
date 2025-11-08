@@ -95,3 +95,5 @@ notes/
 
 # Documentation (keep local only)
 doc-notes/
+
+.dockerignore.backup
