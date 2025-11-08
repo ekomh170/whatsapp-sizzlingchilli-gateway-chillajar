@@ -30,8 +30,9 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies dengan fallback ke npm install
+# npm ci lebih strict, jika gagal fallback ke npm install
+RUN npm ci --only=production || npm install --production
 
 # Copy application files
 COPY . .
