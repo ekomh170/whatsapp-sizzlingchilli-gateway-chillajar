@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  wa-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chillajar_wa_gateway
+    restart: on-failure:5
+    ports:
+      - "8085:8086"
+    environment:
+      - NODE_ENV=production
+      - PORT=8086
+      
+      # WhatsApp Configuration
+      - WA_SENDER=${WA_SENDER:-62xxxxxxxxxx}
+      
+      # Telegram Bot (Optional - untuk notifikasi QR Code)
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      
+      # Laravel Integration
+      - LARAVEL_API_URL=http://ekomh29.biz.id/api
+      - LARAVEL_WEBHOOK_URL=http://ekomh29.biz.id/api/webhook/whatsapp
+      - LARAVEL_API_KEY=${LARAVEL_API_KEY:-}
+      
+      # Security
+      - WA_API_KEY=${WA_API_KEY:-}
+      
+      # Puppeteer Configuration (Linux)
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    volumes:
+      # Persistent WhatsApp session data
+      - wa_sessions:/app/.wwebjs_auth
+      - wa_cache:/app/.wwebjs_cache
+      - wa_media:/app/media
+      - wa_logs:/app/logs
+    networks:
+      - chillajar-network
+      - wa-network
+    labels:
+      - "traefik.enable=false"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8086/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+networks:
+  chillajar-network:
+    external: true
+  wa-network:
+    driver: bridge
+
+volumes:
+  wa_sessions:
+    driver: local
+  wa_cache:
+    driver: local
+  wa_media:
+    driver: local
+  wa_logs:
+    driver: local

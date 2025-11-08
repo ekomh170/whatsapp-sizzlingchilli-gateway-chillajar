@@ -60,7 +60,10 @@ typings/
 
 # dotenv environment variables file
 .env
-.env-deploy
+.env.local
+.env.production
+.env.development
+# Keep .env-deploy as template (with dummy values)
 
 # next.js build output
 .next
@@ -88,3 +91,7 @@ wa-qr.png
 
 # notes
 notes/
+
+
+# Documentation (keep local only)
+doc-notes/

@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+npm-debug.log
+
+# Git
+.git/
+.gitignore
+
+# Environment files (sensitive)
+.env
+.env.local
+.env.production
+.env.development
+
+# Keep deployment template
+!.env-deploy
+
+# Documentation (not needed in container)
+*.md
+!README.md
+docs/
+doc-notes/
+notes/
+
+# WhatsApp session & cache (use volumes instead)
+.wwebjs_auth/
+.wwebjs_cache/
+wa-qr.png
+
+# Logs (use volumes)
+logs/
+*.log
+
+# Test files
+tests/
+*.test.js
+*.spec.js
+
+# IDE & Editor
+.vscode/
+.idea/
+.editorconfig
+.eslintrc.json
+.jsdoc.json
+.npmignore
+
+# Private keys
+*.pem
+*.key
+*.crt
+
+# Build scripts (not needed in runtime)
+build-and-push.sh
+deploy-portainer.sh
+deploy.ps1
+
+# Docker files (don't copy into image)
+Dockerfile
+docker-compose.yml
+.dockerignore

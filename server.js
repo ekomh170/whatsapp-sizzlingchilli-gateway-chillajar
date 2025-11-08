@@ -9,7 +9,7 @@ const TelegramBot = require("node-telegram-bot-api");
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8086;
 
 app.use(bodyParser.json());
 
@@ -27,7 +27,11 @@ const client = new Client({
     },
 });
 
-client.initialize();
+// Initialize dengan error handling
+client.initialize().catch(err => {
+    console.error('Failed to initialize WhatsApp client:', err);
+    // Jangan exit, biarkan health check handle it
+});
 
 let telegramBot;
 const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -87,15 +91,31 @@ client.on("qr", (qr) => {
 });
 
 let isClientReady = false;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
 
 client.on("ready", () => {
     isClientReady = true;
+    reconnectAttempts = 0; // Reset counter saat berhasil connect
     console.log("WhatsApp client is ready!");
 });
 
 client.on("disconnected", (reason) => {
     isClientReady = false;
     console.log("WhatsApp client disconnected:", reason);
+    
+    // Auto-reconnect dengan limit untuk mencegah infinite loop
+    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+        reconnectAttempts++;
+        console.log(`Attempting to reconnect... (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
+        setTimeout(() => {
+            client.initialize().catch(err => {
+                console.error('Reconnect failed:', err.message);
+            });
+        }, 5000 * reconnectAttempts); // Exponential backoff
+    } else {
+        console.error('Max reconnect attempts reached. Please restart the container or check WhatsApp session.');
+    }
 });
 
 // Endpoint untuk menerima request kirim pesan
@@ -146,6 +166,48 @@ app.get("/", (req, res) => {
     res.send("WhatsApp Gateway is running!");
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Gateway listening on http://localhost:${port}`);
+});
+
+// Graceful shutdown untuk mencegah restart loop
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(async () => {
+        console.log('HTTP server closed');
+        try {
+            await client.destroy();
+            console.log('WhatsApp client destroyed');
+            process.exit(0);
+        } catch (err) {
+            console.error('Error destroying client:', err);
+            process.exit(1);
+        }
+    });
+});
+
+process.on('SIGINT', async () => {
+    console.log('SIGINT signal received: closing HTTP server');
+    server.close(async () => {
+        console.log('HTTP server closed');
+        try {
+            await client.destroy();
+            console.log('WhatsApp client destroyed');
+            process.exit(0);
+        } catch (err) {
+            console.error('Error destroying client:', err);
+            process.exit(1);
+        }
+    });
+});
+
+// Handle uncaught errors untuk mencegah crash tanpa log
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    // Tidak exit agar container tidak restart loop
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Tidak exit agar container tidak restart loop
 });
