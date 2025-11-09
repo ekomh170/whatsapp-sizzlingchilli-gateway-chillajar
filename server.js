@@ -118,8 +118,51 @@ client.on("disconnected", (reason) => {
     }
 });
 
-// Endpoint untuk menerima request kirim pesan
-app.post("/c", async (req, res) => {
+// Endpoint untuk menerima request kirim pesan (Laravel compatibility)
+app.post("/send-message", async (req, res) => {
+    const { phone, message, sender } = req.body;
+    if (!phone || !message || !sender) {
+        return res.status(400).json({
+            status: false,
+            message: "phone, message, sender wajib diisi",
+        });
+    }
+    // Validasi nomor pengirim
+    if (process.env.WA_SENDER && sender !== process.env.WA_SENDER) {
+        return res
+            .status(403)
+            .json({ status: false, message: "Sender tidak sesuai" });
+    }
+    // Validasi client ready
+    if (!isClientReady) {
+        return res.status(503).json({
+            status: false,
+            message:
+                "WhatsApp client belum siap, silakan scan QR code atau tunggu beberapa saat.",
+        });
+    }
+    // Validasi nomor WhatsApp
+    if (!/^62\d{9,15}$/.test(phone)) {
+        return res.status(400).json({
+            status: false,
+            message: "Format nomor WhatsApp harus diawali 62 dan hanya angka.",
+        });
+    }
+    try {
+        const chatId = phone + "@c.us";
+        await client.sendMessage(chatId, message);
+        return res.json({ status: true, message: "Pesan berhasil dikirim" });
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            message: "Gagal mengirim pesan",
+            error: err.message,
+        });
+    }
+});
+
+// Endpoint alternatif untuk kirim pesan
+app.post("/chat/send", async (req, res) => {
     const { phone, message, sender } = req.body;
     if (!phone || !message || !sender) {
         return res.status(400).json({
@@ -288,13 +331,26 @@ app.get("/qr", (req, res) => {
                         <p>QR code belum dibuat atau sudah expired.</p>
                         <p><strong>Status:</strong> ${isClientReady ? '✅ Connected' : '❌ Not Connected'}</p>
                     </div>
+                    
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
+                        <h3 style="margin-top: 0; color: #1976d2;">💡 Cara Generate QR Code Baru:</h3>
+                        <ol style="text-align: left; padding-left: 20px; line-height: 1.8;">
+                            <li>Buka <strong>Admin Panel</strong> (tombol di bawah)</li>
+                            <li>Klik tombol <strong>"Force Reconnect"</strong></li>
+                            <li>Tunggu 10-15 detik</li>
+                            <li>Refresh halaman ini untuk lihat QR code</li>
+                        </ol>
+                        <p style="margin-bottom: 0;"><strong>Atau:</strong> Restart Docker container untuk generate QR baru</p>
+                    </div>
+                    
                     <div>
                         <button onclick="location.reload()">🔄 Refresh</button>
+                        <button onclick="window.location.href='/admin'">⚙️ Admin Panel</button>
                         <button onclick="window.location.href='/status'">📊 Check Status</button>
                     </div>
                     <p style="margin-top: 30px; color: #666; font-size: 14px;">
                         Jika sudah scan QR code, gateway akan otomatis connect.<br>
-                        Jika belum, restart container untuk generate QR baru.
+                        Jika Force Reconnect tidak bekerja, restart container.
                     </p>
                 </div>
             </body>
@@ -651,13 +707,42 @@ app.get("/admin", async (req, res) => {
                 
                 function forceReconnect() {
                     if (confirm('Apakah Anda yakin ingin reconnect WhatsApp client? Ini akan generate QR code baru.')) {
+                        const button = event.target;
+                        button.disabled = true;
+                        button.textContent = '⏳ Reconnecting...';
+                        
                         fetch('/admin/reconnect', { method: 'POST' })
                             .then(res => res.json())
                             .then(data => {
                                 alert(data.message);
-                                setTimeout(() => location.reload(), 2000);
+                                // Reload setelah 5 detik untuk memberi waktu generate QR
+                                setTimeout(() => location.reload(), 5000);
                             })
-                            .catch(err => alert('Error: ' + err.message));
+                            .catch(err => {
+                                alert('Error: ' + err.message);
+                                button.disabled = false;
+                                button.textContent = '🔌 Force Reconnect';
+                            });
+                    }
+                }
+                
+                function logoutWhatsApp() {
+                    if (confirm('Apakah Anda yakin ingin logout? Anda harus scan QR code lagi.')) {
+                        const button = event.target;
+                        button.disabled = true;
+                        button.textContent = '⏳ Logging out...';
+                        
+                        fetch('/admin/logout', { method: 'POST' })
+                            .then(res => res.json())
+                            .then(data => {
+                                alert(data.message);
+                                setTimeout(() => location.reload(), 5000);
+                            })
+                            .catch(err => {
+                                alert('Error: ' + err.message);
+                                button.disabled = false;
+                                button.textContent = '🚪 Logout';
+                            });
                     }
                 }
                 
@@ -805,6 +890,7 @@ app.get("/admin", async (req, res) => {
                         <button onclick="window.location.href='/status'">📊 Check Status</button>
                         <button onclick="window.location.href='/'">🏠 Home</button>
                         ${!isClientReady ? '<button class="danger" onclick="forceReconnect()">🔌 Force Reconnect</button>' : ''}
+                        ${isClientReady ? '<button class="danger" onclick="logoutWhatsApp()">🚪 Logout & Reset</button>' : ''}
                     </div>
                 </div>
                 
@@ -835,29 +921,111 @@ app.get("/admin", async (req, res) => {
 
 // Endpoint untuk force reconnect (generate QR baru)
 app.post("/admin/reconnect", async (req, res) => {
-    if (isClientReady) {
-        return res.json({
-            status: false,
-            message: "Client sudah terhubung. Logout dari WhatsApp untuk reconnect."
-        });
-    }
-    
     try {
         console.log('Force reconnect requested from admin panel');
         reconnectAttempts = 0; // Reset counter
-        await client.destroy();
+        isClientReady = false; // Set status to not ready
+        
+        // Destroy existing client jika ada (dengan proper error handling)
+        try {
+            if (client && client.pupPage) {
+                await client.destroy();
+                console.log('Existing client destroyed');
+            } else {
+                console.log('No active client to destroy');
+            }
+        } catch (err) {
+            console.log('Error destroying client (safe to ignore):', err.message);
+        }
+        
+        // Hapus file QR code lama jika ada
+        const fs = require("fs");
+        const path = require("path");
+        const qrPath = path.join(__dirname, "wa-qr.png");
+        try {
+            if (fs.existsSync(qrPath)) {
+                fs.unlinkSync(qrPath);
+                console.log('Old QR code deleted');
+            }
+        } catch (err) {
+            console.log('Error deleting QR code:', err.message);
+        }
+        
+        // Hapus session folder untuk fresh start
+        const { execSync } = require('child_process');
+        try {
+            const sessionPath = path.join(__dirname, '.wwebjs_auth');
+            if (fs.existsSync(sessionPath)) {
+                // Hapus session untuk force re-authentication
+                execSync(`rm -rf "${sessionPath}"`, { stdio: 'ignore' });
+                console.log('Session folder deleted for fresh start');
+            }
+        } catch (err) {
+            console.log('Could not delete session folder:', err.message);
+        }
+        
+        // Re-initialize client setelah delay
         setTimeout(() => {
-            client.initialize();
-        }, 2000);
+            console.log('Re-initializing WhatsApp client...');
+            try {
+                client.initialize();
+            } catch (err) {
+                console.error('Failed to re-initialize client:', err);
+            }
+        }, 3000);
         
         res.json({
             status: true,
-            message: "Reconnect initiated. QR code akan di-generate dalam beberapa detik."
+            message: "Reconnect initiated. QR code akan di-generate dalam 10-15 detik. Silakan refresh halaman secara berkala."
         });
     } catch (err) {
+        console.error('Reconnect error:', err);
         res.status(500).json({
             status: false,
             message: "Gagal reconnect: " + err.message
+        });
+    }
+});
+
+// Endpoint untuk logout dan hapus session
+app.post("/admin/logout", async (req, res) => {
+    try {
+        console.log('Logout requested from admin panel');
+        isClientReady = false;
+        reconnectAttempts = 0;
+        
+        // Logout dari WhatsApp
+        await client.logout();
+        console.log('Client logged out');
+        
+        // Destroy client
+        await client.destroy();
+        console.log('Client destroyed');
+        
+        // Hapus file QR code
+        const fs = require("fs");
+        const qrPath = "wa-qr.png";
+        if (fs.existsSync(qrPath)) {
+            fs.unlinkSync(qrPath);
+        }
+        
+        // Re-initialize untuk generate QR baru
+        setTimeout(() => {
+            console.log('Re-initializing after logout...');
+            client.initialize().catch(err => {
+                console.error('Failed to re-initialize after logout:', err);
+            });
+        }, 3000);
+        
+        res.json({
+            status: true,
+            message: "Logout berhasil. QR code baru akan di-generate. Silakan refresh halaman."
+        });
+    } catch (err) {
+        console.error('Logout error:', err);
+        res.status(500).json({
+            status: false,
+            message: "Gagal logout: " + err.message
         });
     }
 });
