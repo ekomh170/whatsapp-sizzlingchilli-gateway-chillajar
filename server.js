@@ -98,12 +98,26 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 client.on("loading_screen", (percent, message) => {
     console.log(`Loading WhatsApp Web: ${percent}% - ${message}`);
     if (percent === 100) {
-        // Tunggu 3 detik setelah 100% untuk safety
-        setTimeout(() => {
-            isClientReady = true;
-            reconnectAttempts = 0;
-            console.log("✅ WhatsApp client is FULLY READY! (loading_screen 100%)");
-        }, 3000);
+        console.log("Loading complete! Waiting for pupPage to initialize...");
+        
+        // Polling sampai pupPage dan pupBrowser benar-benar ready
+        let checkCount = 0;
+        const checkInterval = setInterval(() => {
+            checkCount++;
+            
+            if (client.pupPage && client.pupBrowser) {
+                clearInterval(checkInterval);
+                isClientReady = true;
+                reconnectAttempts = 0;
+                console.log("✅ WhatsApp client is FULLY READY with pupPage initialized!");
+            } else if (checkCount >= 30) {
+                // Timeout setelah 30 detik
+                clearInterval(checkInterval);
+                console.error("❌ Timeout: pupPage tidak initialize setelah 30 detik");
+            } else {
+                console.log(`⏳ Waiting for pupPage... (${checkCount}/30)`);
+            }
+        }, 1000); // Check setiap 1 detik
     }
 });
 
