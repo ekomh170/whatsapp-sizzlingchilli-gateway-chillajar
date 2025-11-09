@@ -98,13 +98,14 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 client.on("authenticated", () => {
     console.log("WhatsApp client authenticated! Loading session...");
     // Set ready di sini juga sebagai fallback kalau ready event tidak fire
+    // Tunggu lebih lama untuk memastikan client fully initialized
     setTimeout(() => {
         if (!isClientReady) {
             isClientReady = true;
             reconnectAttempts = 0;
             console.log("WhatsApp client is ready! (via authenticated event)");
         }
-    }, 5000); // Tunggu 5 detik setelah authenticated
+    }, 15000); // Tunggu 15 detik setelah authenticated untuk memastikan fully loaded
 });
 
 client.on("ready", () => {
@@ -131,6 +132,24 @@ client.on("disconnected", (reason) => {
     }
 });
 
+// Helper function untuk validasi client state
+async function validateClientReady() {
+    if (!isClientReady) {
+        return { valid: false, status: 503, message: "WhatsApp client belum siap, silakan scan QR code atau tunggu beberapa saat." };
+    }
+    
+    // Validasi client state (pastikan sudah fully loaded)
+    try {
+        const state = await client.getState();
+        if (state !== 'CONNECTED') {
+            return { valid: false, status: 503, message: `WhatsApp client state: ${state}. Tunggu hingga CONNECTED (biasanya 15-30 detik setelah scan).` };
+        }
+        return { valid: true };
+    } catch (err) {
+        return { valid: false, status: 503, message: "WhatsApp client belum fully initialized. Tunggu 15-30 detik setelah scan.", error: err.message };
+    }
+}
+
 // Endpoint untuk menerima request kirim pesan (Laravel compatibility)
 app.post("/send-message", async (req, res) => {
     const { phone, message, sender } = req.body;
@@ -146,14 +165,17 @@ app.post("/send-message", async (req, res) => {
             .status(403)
             .json({ status: false, message: "Sender tidak sesuai" });
     }
-    // Validasi client ready
-    if (!isClientReady) {
-        return res.status(503).json({
+    
+    // Validasi client ready dengan helper function
+    const validation = await validateClientReady();
+    if (!validation.valid) {
+        return res.status(validation.status).json({
             status: false,
-            message:
-                "WhatsApp client belum siap, silakan scan QR code atau tunggu beberapa saat.",
+            message: validation.message,
+            error: validation.error
         });
     }
+    
     // Validasi nomor WhatsApp
     if (!/^62\d{9,15}$/.test(phone)) {
         return res.status(400).json({
@@ -189,14 +211,17 @@ app.post("/chat/send", async (req, res) => {
             .status(403)
             .json({ status: false, message: "Sender tidak sesuai" });
     }
-    // Validasi client ready
-    if (!isClientReady) {
-        return res.status(503).json({
+    
+    // Validasi client ready dengan helper function
+    const validation = await validateClientReady();
+    if (!validation.valid) {
+        return res.status(validation.status).json({
             status: false,
-            message:
-                "WhatsApp client belum siap, silakan scan QR code atau tunggu beberapa saat.",
+            message: validation.message,
+            error: validation.error
         });
     }
+    
     // Validasi nomor WhatsApp
     if (!/^62\d{9,15}$/.test(phone)) {
         return res.status(400).json({
@@ -530,13 +555,15 @@ app.get("/admin", async (req, res) => {
     if (isClientReady) {
         try {
             const info = await client.info;
-            clientInfo = {
-                wid: info.wid._serialized,
-                pushname: info.pushname,
-                platform: info.platform
-            };
+            if (info && info.wid) {
+                clientInfo = {
+                    wid: info.wid._serialized,
+                    pushname: info.pushname,
+                    platform: info.platform
+                };
+            }
         } catch (err) {
-            console.error('Error getting client info:', err);
+            console.error('Error getting client info:', err.message);
         }
     }
 
