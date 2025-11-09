@@ -94,6 +94,19 @@ let isClientReady = false;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
+// Event authenticated: fired setelah QR scan berhasil (sebelum ready)
+client.on("authenticated", () => {
+    console.log("WhatsApp client authenticated! Loading session...");
+    // Set ready di sini juga sebagai fallback kalau ready event tidak fire
+    setTimeout(() => {
+        if (!isClientReady) {
+            isClientReady = true;
+            reconnectAttempts = 0;
+            console.log("WhatsApp client is ready! (via authenticated event)");
+        }
+    }, 5000); // Tunggu 5 detik setelah authenticated
+});
+
 client.on("ready", () => {
     isClientReady = true;
     reconnectAttempts = 0; // Reset counter saat berhasil connect
