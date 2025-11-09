@@ -103,10 +103,12 @@ client.on("ready", () => {
 // Event authenticated: set ready langsung tanpa delay
 client.on("authenticated", async () => {
     console.log("WhatsApp client authenticated! Setting ready immediately...");
-    // Langsung set ready - skip validation
-    isClientReady = true;
-    reconnectAttempts = 0;
-    console.log("WhatsApp client marked as READY (authenticated)");
+    // Tunggu 10 detik untuk memastikan pupPage ready
+    setTimeout(() => {
+        isClientReady = true;
+        reconnectAttempts = 0;
+        console.log("WhatsApp client marked as READY (authenticated)");
+    }, 10000); // 10 detik delay
 });
 
 client.on("disconnected", (reason) => {
@@ -175,6 +177,22 @@ app.post("/send-message", async (req, res) => {
         await client.sendMessage(chatId, message);
         return res.json({ status: true, message: "Pesan berhasil dikirim" });
     } catch (err) {
+        // Retry sekali lagi setelah 3 detik jika error pupPage
+        if (err.message && err.message.includes('getChat')) {
+            console.log('Retrying send message after 3 seconds...');
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            try {
+                const chatId = phone + "@c.us";
+                await client.sendMessage(chatId, message);
+                return res.json({ status: true, message: "Pesan berhasil dikirim (retry)" });
+            } catch (retryErr) {
+                return res.status(500).json({
+                    status: false,
+                    message: "Gagal mengirim pesan setelah retry. WhatsApp client mungkin belum fully ready. Tunggu 10-15 detik lagi.",
+                    error: retryErr.message,
+                });
+            }
+        }
         return res.status(500).json({
             status: false,
             message: "Gagal mengirim pesan",
