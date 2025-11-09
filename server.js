@@ -327,7 +327,7 @@ app.get("/qr", (req, res) => {
                         font-family: Arial, sans-serif; 
                         text-align: center; 
                         padding: 50px;
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
                         color: white;
                     }
                     .container {
@@ -339,7 +339,7 @@ app.get("/qr", (req, res) => {
                         margin: 0 auto;
                         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
                     }
-                    h1 { color: #667eea; }
+                    h1 { color: #f39c12; }
                     .status { 
                         padding: 15px; 
                         margin: 20px 0; 
@@ -348,7 +348,7 @@ app.get("/qr", (req, res) => {
                         border: 1px solid #ffc107;
                     }
                     button {
-                        background: #667eea;
+                        background: #f39c12;
                         color: white;
                         border: none;
                         padding: 12px 30px;
@@ -357,7 +357,7 @@ app.get("/qr", (req, res) => {
                         font-size: 16px;
                         margin: 10px;
                     }
-                    button:hover { background: #764ba2; }
+                    button:hover { background: #e67e22; }
                 </style>
             </head>
             <body>
@@ -370,7 +370,7 @@ app.get("/qr", (req, res) => {
                     </div>
                     
                     <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
-                        <h3 style="margin-top: 0; color: #1976d2;">💡 Cara Generate QR Code Baru:</h3>
+                        <h3 style="margin-top: 0; color: #f39c12;">💡 Cara Generate QR Code Baru:</h3>
                         <ol style="text-align: left; padding-left: 20px; line-height: 1.8;">
                             <li>Buka <strong>Admin Panel</strong> (tombol di bawah)</li>
                             <li>Klik tombol <strong>"Force Reconnect"</strong></li>
@@ -408,7 +408,7 @@ app.get("/qr", (req, res) => {
                     font-family: Arial, sans-serif; 
                     text-align: center; 
                     padding: 20px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
                     color: white;
                     margin: 0;
                 }
@@ -421,12 +421,12 @@ app.get("/qr", (req, res) => {
                     margin: 0 auto;
                     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
                 }
-                h1 { color: #667eea; margin-bottom: 10px; }
+                h1 { color: #f39c12; margin-bottom: 10px; }
                 .subtitle { color: #666; margin-bottom: 30px; }
                 img { 
                     max-width: 100%; 
                     height: auto; 
-                    border: 5px solid #667eea; 
+                    border: 5px solid #f39c12; 
                     border-radius: 15px;
                     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
                 }
@@ -436,7 +436,7 @@ app.get("/qr", (req, res) => {
                     padding: 20px;
                     background: #f8f9fa;
                     border-radius: 10px;
-                    border-left: 4px solid #667eea;
+                    border-left: 4px solid #f39c12;
                 }
                 .instructions ol {
                     margin: 10px 0;
@@ -512,7 +512,7 @@ app.get("/qr", (req, res) => {
                 </div>
                 
                 <div class="instructions">
-                    <h3 style="margin-top: 0; color: #667eea;">📋 Cara Scan QR Code:</h3>
+                    <h3 style="margin-top: 0; color: #f39c12;">📋 Cara Scan QR Code:</h3>
                     <ol>
                         <li>Buka <strong>WhatsApp</strong> di HP Anda</li>
                         <li>Tap <strong>Menu (⋮)</strong> atau <strong>Settings</strong></li>
@@ -577,7 +577,7 @@ app.get("/admin", async (req, res) => {
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body { 
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
                     padding: 20px;
                     min-height: 100vh;
                 }
@@ -593,7 +593,7 @@ app.get("/admin", async (req, res) => {
                     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
                 }
                 .header h1 {
-                    color: #667eea;
+                    color: #f39c12;
                     margin-bottom: 10px;
                 }
                 .header p {
@@ -612,7 +612,7 @@ app.get("/admin", async (req, res) => {
                     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
                 }
                 .card h2 {
-                    color: #667eea;
+                    color: #f39c12;
                     margin-bottom: 15px;
                     font-size: 20px;
                 }
@@ -656,7 +656,7 @@ app.get("/admin", async (req, res) => {
                     color: #333;
                 }
                 button, .btn {
-                    background: #667eea;
+                    background: #f39c12;
                     color: white;
                     border: none;
                     padding: 12px 24px;
@@ -669,7 +669,7 @@ app.get("/admin", async (req, res) => {
                     text-decoration: none;
                 }
                 button:hover, .btn:hover {
-                    background: #764ba2;
+                    background: #e67e22;
                     transform: translateY(-2px);
                     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
                 }
@@ -695,7 +695,7 @@ app.get("/admin", async (req, res) => {
                 }
                 .qr-preview img {
                     max-width: 250px;
-                    border: 3px solid #667eea;
+                    border: 3px solid #f39c12;
                     border-radius: 10px;
                 }
                 .alert {
@@ -937,11 +937,11 @@ app.get("/admin", async (req, res) => {
                 <div class="card">
                     <h2>🔗 Quick Links</h2>
                     <div style="line-height: 2;">
-                        <a href="/" style="color: #667eea; text-decoration: none;">• Home</a><br>
-                        <a href="/status" style="color: #667eea; text-decoration: none;">• Status API</a><br>
-                        <a href="/health" style="color: #667eea; text-decoration: none;">• Health Check</a><br>
-                        <a href="/qr" style="color: #667eea; text-decoration: none;">• QR Code Page</a><br>
-                        <a href="/admin" style="color: #667eea; text-decoration: none;">• Admin Panel (current)</a><br>
+                        <a href="/" style="color: #f39c12; text-decoration: none;">• Home</a><br>
+                        <a href="/status" style="color: #f39c12; text-decoration: none;">• Status API</a><br>
+                        <a href="/health" style="color: #f39c12; text-decoration: none;">• Health Check</a><br>
+                        <a href="/qr" style="color: #f39c12; text-decoration: none;">• QR Code Page</a><br>
+                        <a href="/admin" style="color: #f39c12; text-decoration: none;">• Admin Panel (current)</a><br>
                     </div>
                 </div>
             </div>
