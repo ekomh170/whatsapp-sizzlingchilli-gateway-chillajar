@@ -94,21 +94,28 @@ let isClientReady = false;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
+// Event paling reliable: loading_screen - fired saat WhatsApp Web fully loaded
+client.on("loading_screen", (percent, message) => {
+    console.log(`Loading WhatsApp Web: ${percent}% - ${message}`);
+    if (percent === 100) {
+        // Tunggu 3 detik setelah 100% untuk safety
+        setTimeout(() => {
+            isClientReady = true;
+            reconnectAttempts = 0;
+            console.log("✅ WhatsApp client is FULLY READY! (loading_screen 100%)");
+        }, 3000);
+    }
+});
+
 client.on("ready", () => {
     isClientReady = true;
     reconnectAttempts = 0;
-    console.log("WhatsApp client is ready!");
+    console.log("✅ WhatsApp client is ready! (ready event)");
 });
 
-// Event authenticated: set ready langsung tanpa delay
-client.on("authenticated", async () => {
-    console.log("WhatsApp client authenticated! Setting ready immediately...");
-    // Tunggu 10 detik untuk memastikan pupPage ready
-    setTimeout(() => {
-        isClientReady = true;
-        reconnectAttempts = 0;
-        console.log("WhatsApp client marked as READY (authenticated)");
-    }, 10000); // 10 detik delay
+// Backup: authenticated event
+client.on("authenticated", () => {
+    console.log("WhatsApp client authenticated!");
 });
 
 client.on("disconnected", (reason) => {
