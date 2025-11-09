@@ -1,9 +1,8 @@
 {
-    "name": "whatsapp-web.js",
-    "version": "1.30.0",
-    "description": "Library for interacting with the WhatsApp Web API ",
-    "main": "./index.js",
-    "typings": "./index.d.ts",
+    "name": "whatsapp-sizzlingchilli-gateway",
+    "version": "1.0.0",
+    "description": "WhatsApp Gateway for ChillAjar using whatsapp-web.js",
+    "main": "server.js",
     "scripts": {
         "start": "node server.js",
         "test": "mocha tests --recursive --timeout 5000",
@@ -13,7 +12,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/pedroslopez/whatsapp-web.js.git"
+        "url": "git+https://github.com/ekomh170/whatsapp-sizzlingchilli-gateway-chillajar.git"
     },
     "keywords": [
         "whatsapp",
@@ -21,45 +20,26 @@
         "api",
         "bot",
         "client",
-        "node"
+        "node",
+        "gateway",
+        "chillajar"
     ],
-    "author": "Pedro Lopez",
+    "author": "ChillAjar Team",
     "license": "Apache-2.0",
     "bugs": {
-        "url": "https://github.com/pedroslopez/whatsapp-web.js/issues"
+        "url": "https://github.com/ekomh170/whatsapp-sizzlingchilli-gateway-chillajar/issues"
     },
-    "homepage": "https://wwebjs.dev/",
+    "homepage": "https://github.com/ekomh170/whatsapp-sizzlingchilli-gateway-chillajar",
     "dependencies": {
-        "@pedroslopez/moduleraid": "^5.0.2",
-        "body-parser": "^2.2.0",
+        "whatsapp-web.js": "^1.23.0",
+        "body-parser": "^1.20.2",
         "dotenv": "^16.0.0",
-        "express": "^5.1.0",
-        "fluent-ffmpeg": "2.1.2",
-        "mime": "^3.0.0",
-        "node-fetch": "^2.6.9",
-        "node-telegram-bot-api": "^0.66.0",
-        "node-webpmux": "3.1.7",
-        "puppeteer": "^18.2.1",
+        "express": "^4.18.2",
         "qrcode": "^1.5.4",
-        "qrcode-terminal": "^0.12.0"
-    },
-    "devDependencies": {
-        "@types/node-fetch": "^2.5.12",
-        "chai": "^4.3.4",
-        "chai-as-promised": "^7.1.1",
-        "eslint": "^8.4.1",
-        "eslint-plugin-mocha": "^10.0.3",
-        "jsdoc": "^3.6.4",
-        "jsdoc-baseline": "^0.1.5",
-        "mocha": "^9.0.2",
-        "sinon": "^13.0.1"
+        "qrcode-terminal": "^0.12.0",
+        "node-telegram-bot-api": "^0.66.0"
     },
     "engines": {
         "node": ">=18.0.0"
-    },
-    "optionalDependencies": {
-        "archiver": "^5.3.1",
-        "fs-extra": "^10.1.0",
-        "unzipper": "^0.10.11"
     }
 }

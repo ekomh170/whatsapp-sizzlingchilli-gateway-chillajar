@@ -3,7 +3,7 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const { Client, LocalAuth } = require("./index");
+const { Client, LocalAuth } = require("whatsapp-web.js");
 const QRCode = require("qrcode");
 const TelegramBot = require("node-telegram-bot-api");
 require("dotenv").config();
@@ -98,26 +98,14 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 client.on("loading_screen", (percent, message) => {
     console.log(`Loading WhatsApp Web: ${percent}% - ${message}`);
     if (percent === 100) {
-        console.log("Loading complete! Waiting for pupPage to initialize...");
+        console.log("Loading complete! Waiting 15 seconds for full initialization...");
         
-        // Polling sampai pupPage dan pupBrowser benar-benar ready
-        let checkCount = 0;
-        const checkInterval = setInterval(() => {
-            checkCount++;
-            
-            if (client.pupPage && client.pupBrowser) {
-                clearInterval(checkInterval);
-                isClientReady = true;
-                reconnectAttempts = 0;
-                console.log("✅ WhatsApp client is FULLY READY with pupPage initialized!");
-            } else if (checkCount >= 30) {
-                // Timeout setelah 30 detik
-                clearInterval(checkInterval);
-                console.error("❌ Timeout: pupPage tidak initialize setelah 30 detik");
-            } else {
-                console.log(`⏳ Waiting for pupPage... (${checkCount}/30)`);
-            }
-        }, 1000); // Check setiap 1 detik
+        // Force wait 15 detik - no polling, just wait
+        setTimeout(() => {
+            isClientReady = true;
+            reconnectAttempts = 0;
+            console.log("✅ WhatsApp client is READY after 15 second delay!");
+        }, 15000); // 15 detik delay paksa
     }
 });
 
@@ -198,25 +186,10 @@ app.post("/send-message", async (req, res) => {
         await client.sendMessage(chatId, message);
         return res.json({ status: true, message: "Pesan berhasil dikirim" });
     } catch (err) {
-        // Retry sekali lagi setelah 3 detik jika error pupPage
-        if (err.message && err.message.includes('getChat')) {
-            console.log('Retrying send message after 3 seconds...');
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            try {
-                const chatId = phone + "@c.us";
-                await client.sendMessage(chatId, message);
-                return res.json({ status: true, message: "Pesan berhasil dikirim (retry)" });
-            } catch (retryErr) {
-                return res.status(500).json({
-                    status: false,
-                    message: "Gagal mengirim pesan setelah retry. WhatsApp client mungkin belum fully ready. Tunggu 10-15 detik lagi.",
-                    error: retryErr.message,
-                });
-            }
-        }
+        // Return error langsung tanpa retry
         return res.status(500).json({
             status: false,
-            message: "Gagal mengirim pesan",
+            message: "Gagal mengirim pesan. Client mungkin belum fully ready atau nomor tidak terdaftar.",
             error: err.message,
         });
     }
