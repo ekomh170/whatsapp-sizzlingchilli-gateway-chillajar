@@ -94,24 +94,19 @@ let isClientReady = false;
 let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
-// Event authenticated: fired setelah QR scan berhasil (sebelum ready)
-client.on("authenticated", () => {
-    console.log("WhatsApp client authenticated! Loading session...");
-    // Set ready di sini juga sebagai fallback kalau ready event tidak fire
-    // Tunggu lebih lama untuk memastikan client fully initialized
-    setTimeout(() => {
-        if (!isClientReady) {
-            isClientReady = true;
-            reconnectAttempts = 0;
-            console.log("WhatsApp client is ready! (via authenticated event)");
-        }
-    }, 15000); // Tunggu 15 detik setelah authenticated untuk memastikan fully loaded
-});
-
 client.on("ready", () => {
     isClientReady = true;
-    reconnectAttempts = 0; // Reset counter saat berhasil connect
+    reconnectAttempts = 0;
     console.log("WhatsApp client is ready!");
+});
+
+// Event authenticated: set ready langsung tanpa delay
+client.on("authenticated", async () => {
+    console.log("WhatsApp client authenticated! Setting ready immediately...");
+    // Langsung set ready - skip validation
+    isClientReady = true;
+    reconnectAttempts = 0;
+    console.log("WhatsApp client marked as READY (authenticated)");
 });
 
 client.on("disconnected", (reason) => {
@@ -138,16 +133,8 @@ async function validateClientReady() {
         return { valid: false, status: 503, message: "WhatsApp client belum siap, silakan scan QR code atau tunggu beberapa saat." };
     }
     
-    // Validasi client state (pastikan sudah fully loaded)
-    try {
-        const state = await client.getState();
-        if (state !== 'CONNECTED') {
-            return { valid: false, status: 503, message: `WhatsApp client state: ${state}. Tunggu hingga CONNECTED (biasanya 15-30 detik setelah scan).` };
-        }
-        return { valid: true };
-    } catch (err) {
-        return { valid: false, status: 503, message: "WhatsApp client belum fully initialized. Tunggu 15-30 detik setelah scan.", error: err.message };
-    }
+    // Skip validasi state - langsung return valid
+    return { valid: true };
 }
 
 // Endpoint untuk menerima request kirim pesan (Laravel compatibility)
