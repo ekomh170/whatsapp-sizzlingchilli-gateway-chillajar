@@ -926,6 +926,9 @@ app.post("/admin/reconnect", async (req, res) => {
         reconnectAttempts = 0; // Reset counter
         isClientReady = false; // Set status to not ready
         
+        const fs = require("fs");
+        const path = require("path");
+        
         // Destroy existing client jika ada (dengan proper error handling)
         try {
             if (client && client.pupPage) {
@@ -938,9 +941,58 @@ app.post("/admin/reconnect", async (req, res) => {
             console.log('Error destroying client (safe to ignore):', err.message);
         }
         
+        // Tunggu sebentar untuk memastikan browser fully closed
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // HAPUS SINGLETONLOCK DAN FILE-FILE LOCK LAINNYA
+        try {
+            const sessionPath = path.join(__dirname, '.wwebjs_auth', 'session');
+            const cachePath = path.join(__dirname, '.wwebjs_cache');
+            
+            // Hapus SingletonLock yang menyebabkan error
+            const lockFiles = [
+                path.join(sessionPath, 'SingletonLock'),
+                path.join(sessionPath, 'SingletonSocket'),
+                path.join(sessionPath, 'SingletonCookie')
+            ];
+            
+            lockFiles.forEach(lockFile => {
+                try {
+                    if (fs.existsSync(lockFile)) {
+                        fs.unlinkSync(lockFile);
+                        console.log(`Deleted lock file: ${lockFile}`);
+                    }
+                } catch (err) {
+                    console.log(`Could not delete ${lockFile}:`, err.message);
+                }
+            });
+            
+            // Hapus cache folder
+            if (fs.existsSync(cachePath)) {
+                const { execSync } = require('child_process');
+                try {
+                    execSync(`rm -rf "${cachePath}"`, { stdio: 'ignore' });
+                    console.log('Cache folder deleted');
+                } catch (err) {
+                    console.log('Could not delete cache folder:', err.message);
+                }
+            }
+            
+            // Hapus folder session SETELAH lock files dihapus (untuk fresh start)
+            if (fs.existsSync(sessionPath)) {
+                const { execSync } = require('child_process');
+                try {
+                    execSync(`rm -rf "${sessionPath}"`, { stdio: 'ignore' });
+                    console.log('Session folder deleted for fresh start');
+                } catch (err) {
+                    console.log('Could not delete session folder:', err.message);
+                }
+            }
+        } catch (err) {
+            console.error('Error cleaning up session files:', err.message);
+        }
+        
         // Hapus file QR code lama jika ada
-        const fs = require("fs");
-        const path = require("path");
         const qrPath = path.join(__dirname, "wa-qr.png");
         try {
             if (fs.existsSync(qrPath)) {
@@ -951,22 +1003,9 @@ app.post("/admin/reconnect", async (req, res) => {
             console.log('Error deleting QR code:', err.message);
         }
         
-        // Hapus session folder untuk fresh start
-        const { execSync } = require('child_process');
-        try {
-            const sessionPath = path.join(__dirname, '.wwebjs_auth');
-            if (fs.existsSync(sessionPath)) {
-                // Hapus session untuk force re-authentication
-                execSync(`rm -rf "${sessionPath}"`, { stdio: 'ignore' });
-                console.log('Session folder deleted for fresh start');
-            }
-        } catch (err) {
-            console.log('Could not delete session folder:', err.message);
-        }
-        
-        // Re-initialize client setelah delay
+        // Re-initialize client setelah delay lebih lama untuk memastikan cleanup selesai
         setTimeout(() => {
-            console.log('Re-initializing WhatsApp client...');
+            console.log('Re-initializing WhatsApp client with clean state...');
             try {
                 client.initialize();
             } catch (err) {
@@ -976,7 +1015,7 @@ app.post("/admin/reconnect", async (req, res) => {
         
         res.json({
             status: true,
-            message: "Reconnect initiated. QR code akan di-generate dalam 10-15 detik. Silakan refresh halaman secara berkala."
+            message: "🔄 Reconnect initiated! SingletonLock cleared. QR code akan muncul dalam 10-15 detik. Refresh halaman ini secara berkala."
         });
     } catch (err) {
         console.error('Reconnect error:', err);
