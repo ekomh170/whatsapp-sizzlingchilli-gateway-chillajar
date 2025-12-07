@@ -63,6 +63,8 @@ typings/
 .env.local
 .env.production
 .env.development
+.env-deploy
+.env copy
 # Keep .env-deploy as template (with dummy values)
 
 # next.js build output
