@@ -12,8 +12,8 @@ const app = express();
 const port = process.env.PORT || 8086;
 
 app.use(bodyParser.json());
+// Serve static files dari folder public (images, css, js, dll)
 app.use(express.static('public'));
-app.use('/assets', express.static('src/assets'));
 
 // Deteksi OS Linux untuk menyesuaikan argumen puppeteer
 const isLinux = process.platform === "linux";
@@ -324,8 +324,8 @@ app.get("/qr", (req, res) => {
             <head>
                 <title>WhatsApp QR Code - ChillAjar Gateway</title>
                 <meta charset="utf-8">
-                <link rel="icon" type="image/x-icon" href="/favicon.ico">
-                <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+                <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+                <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico">
                 <style>
                     body { 
                         font-family: Arial, sans-serif; 
@@ -366,7 +366,7 @@ app.get("/qr", (req, res) => {
             </head>
             <body>
                 <div class="container">
-                    <img src="/logo.png" alt="ChillAjar Logo" style="max-width: 150px; margin-bottom: 20px;">
+                    <img src="/images/logo.png" alt="ChillAjar Logo" style="max-width: 150px; margin-bottom: 20px;">
                     <h1>📱 WhatsApp Gateway</h1>
                     <div class="status">
                         <h2>⚠️ QR Code Tidak Tersedia</h2>
@@ -407,8 +407,8 @@ app.get("/qr", (req, res) => {
         <head>
             <title>WhatsApp QR Code - ChillAjar Gateway</title>
             <meta charset="utf-8">
-            <link rel="icon" type="image/x-icon" href="/favicon.ico">
-            <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+            <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+            <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
                 body { 
@@ -506,7 +506,7 @@ app.get("/qr", (req, res) => {
         </head>
         <body>
             <div class="container">
-                <img src="/logo.png" alt="ChillAjar Logo" style="max-width: 150px; margin-bottom: 20px;">
+                <img src="/images/logo.png" alt="ChillAjar Logo" style="max-width: 150px; margin-bottom: 20px;">
                 <h1>📱 WhatsApp Gateway QR Code</h1>
                 <p class="subtitle">Scan QR code ini dengan WhatsApp untuk menghubungkan gateway</p>
                 
@@ -580,8 +580,8 @@ app.get("/admin", async (req, res) => {
         <head>
             <title>WhatsApp Gateway - Admin Panel ChillAjar</title>
             <meta charset="utf-8">
-            <link rel="icon" type="image/x-icon" href="/favicon.ico">
-            <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+            <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+            <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -829,7 +829,7 @@ app.get("/admin", async (req, res) => {
         <body>
             <div class="container">
                 <div class="header">
-                    <img src="/logo.png" alt="ChillAjar Logo" style="max-width: 120px; margin-bottom: 15px;">
+                    <img src="/images/logo.png" alt="ChillAjar Logo" style="max-width: 120px; margin-bottom: 15px;">
                     <h1>⚙️ WhatsApp Gateway - Admin Panel</h1>
                     <p>Management & Monitoring Dashboard</p>
                 </div>
