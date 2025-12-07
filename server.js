@@ -12,6 +12,8 @@ const app = express();
 const port = process.env.PORT || 8086;
 
 app.use(bodyParser.json());
+app.use(express.static('public'));
+app.use('/assets', express.static('src/assets'));
 
 // Deteksi OS Linux untuk menyesuaikan argumen puppeteer
 const isLinux = process.platform === "linux";
@@ -320,14 +322,16 @@ app.get("/qr", (req, res) => {
             <!DOCTYPE html>
             <html>
             <head>
-                <title>WhatsApp QR Code</title>
+                <title>WhatsApp QR Code - ChillAjar Gateway</title>
                 <meta charset="utf-8">
+                <link rel="icon" type="image/x-icon" href="/favicon.ico">
+                <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
                 <style>
                     body { 
                         font-family: Arial, sans-serif; 
                         text-align: center; 
                         padding: 50px;
-                        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+                        background: linear-gradient(135deg, #2FA1FF 0%, #298FE4 100%);
                         color: white;
                     }
                     .container {
@@ -339,7 +343,7 @@ app.get("/qr", (req, res) => {
                         margin: 0 auto;
                         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
                     }
-                    h1 { color: #f39c12; }
+                    h1 { color: #2FA1FF; }
                     .status { 
                         padding: 15px; 
                         margin: 20px 0; 
@@ -348,7 +352,7 @@ app.get("/qr", (req, res) => {
                         border: 1px solid #ffc107;
                     }
                     button {
-                        background: #f39c12;
+                        background: #2FA1FF;
                         color: white;
                         border: none;
                         padding: 12px 30px;
@@ -357,11 +361,12 @@ app.get("/qr", (req, res) => {
                         font-size: 16px;
                         margin: 10px;
                     }
-                    button:hover { background: #e67e22; }
+                    button:hover { background: #298FE4; }
                 </style>
             </head>
             <body>
                 <div class="container">
+                    <img src="/logo.png" alt="ChillAjar Logo" style="max-width: 150px; margin-bottom: 20px;">
                     <h1>📱 WhatsApp Gateway</h1>
                     <div class="status">
                         <h2>⚠️ QR Code Tidak Tersedia</h2>
@@ -370,7 +375,7 @@ app.get("/qr", (req, res) => {
                     </div>
                     
                     <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3;">
-                        <h3 style="margin-top: 0; color: #f39c12;">💡 Cara Generate QR Code Baru:</h3>
+                        <h3 style="margin-top: 0; color: #2FA1FF;">💡 Cara Generate QR Code Baru:</h3>
                         <ol style="text-align: left; padding-left: 20px; line-height: 1.8;">
                             <li>Buka <strong>Admin Panel</strong> (tombol di bawah)</li>
                             <li>Klik tombol <strong>"Force Reconnect"</strong></li>
@@ -400,15 +405,17 @@ app.get("/qr", (req, res) => {
         <!DOCTYPE html>
         <html>
         <head>
-            <title>WhatsApp QR Code</title>
+            <title>WhatsApp QR Code - ChillAjar Gateway</title>
             <meta charset="utf-8">
+            <link rel="icon" type="image/x-icon" href="/favicon.ico">
+            <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
                 body { 
                     font-family: Arial, sans-serif; 
                     text-align: center; 
                     padding: 20px;
-                    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+                    background: linear-gradient(135deg, #2FA1FF 0%, #298FE4 100%);
                     color: white;
                     margin: 0;
                 }
@@ -421,12 +428,12 @@ app.get("/qr", (req, res) => {
                     margin: 0 auto;
                     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
                 }
-                h1 { color: #f39c12; margin-bottom: 10px; }
+                h1 { color: #2FA1FF; margin-bottom: 10px; }
                 .subtitle { color: #666; margin-bottom: 30px; }
                 img { 
                     max-width: 100%; 
                     height: auto; 
-                    border: 5px solid #f39c12; 
+                    border: 5px solid #2FA1FF; 
                     border-radius: 15px;
                     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
                 }
@@ -436,7 +443,7 @@ app.get("/qr", (req, res) => {
                     padding: 20px;
                     background: #f8f9fa;
                     border-radius: 10px;
-                    border-left: 4px solid #f39c12;
+                    border-left: 4px solid #2FA1FF;
                 }
                 .instructions ol {
                     margin: 10px 0;
@@ -499,6 +506,7 @@ app.get("/qr", (req, res) => {
         </head>
         <body>
             <div class="container">
+                <img src="/logo.png" alt="ChillAjar Logo" style="max-width: 150px; margin-bottom: 20px;">
                 <h1>📱 WhatsApp Gateway QR Code</h1>
                 <p class="subtitle">Scan QR code ini dengan WhatsApp untuk menghubungkan gateway</p>
                 
@@ -512,7 +520,7 @@ app.get("/qr", (req, res) => {
                 </div>
                 
                 <div class="instructions">
-                    <h3 style="margin-top: 0; color: #f39c12;">📋 Cara Scan QR Code:</h3>
+                    <h3 style="margin-top: 0; color: #2FA1FF;">📋 Cara Scan QR Code:</h3>
                     <ol>
                         <li>Buka <strong>WhatsApp</strong> di HP Anda</li>
                         <li>Tap <strong>Menu (⋮)</strong> atau <strong>Settings</strong></li>
@@ -570,14 +578,16 @@ app.get("/admin", async (req, res) => {
         <!DOCTYPE html>
         <html>
         <head>
-            <title>WhatsApp Gateway - Admin Panel</title>
+            <title>WhatsApp Gateway - Admin Panel ChillAjar</title>
             <meta charset="utf-8">
+            <link rel="icon" type="image/x-icon" href="/favicon.ico">
+            <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 body { 
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+                    background: linear-gradient(135deg, #2FA1FF 0%, #298FE4 100%);
                     padding: 20px;
                     min-height: 100vh;
                 }
@@ -593,7 +603,7 @@ app.get("/admin", async (req, res) => {
                     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
                 }
                 .header h1 {
-                    color: #f39c12;
+                    color: #2FA1FF;
                     margin-bottom: 10px;
                 }
                 .header p {
@@ -612,7 +622,7 @@ app.get("/admin", async (req, res) => {
                     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
                 }
                 .card h2 {
-                    color: #f39c12;
+                    color: #2FA1FF;
                     margin-bottom: 15px;
                     font-size: 20px;
                 }
@@ -656,7 +666,7 @@ app.get("/admin", async (req, res) => {
                     color: #333;
                 }
                 button, .btn {
-                    background: #f39c12;
+                    background: #2FA1FF;
                     color: white;
                     border: none;
                     padding: 12px 24px;
@@ -669,7 +679,7 @@ app.get("/admin", async (req, res) => {
                     text-decoration: none;
                 }
                 button:hover, .btn:hover {
-                    background: #e67e22;
+                    background: #298FE4;
                     transform: translateY(-2px);
                     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
                 }
@@ -695,7 +705,7 @@ app.get("/admin", async (req, res) => {
                 }
                 .qr-preview img {
                     max-width: 250px;
-                    border: 3px solid #f39c12;
+                    border: 3px solid #2FA1FF;
                     border-radius: 10px;
                 }
                 .alert {
@@ -819,6 +829,7 @@ app.get("/admin", async (req, res) => {
         <body>
             <div class="container">
                 <div class="header">
+                    <img src="/logo.png" alt="ChillAjar Logo" style="max-width: 120px; margin-bottom: 15px;">
                     <h1>⚙️ WhatsApp Gateway - Admin Panel</h1>
                     <p>Management & Monitoring Dashboard</p>
                 </div>
@@ -937,11 +948,11 @@ app.get("/admin", async (req, res) => {
                 <div class="card">
                     <h2>🔗 Quick Links</h2>
                     <div style="line-height: 2;">
-                        <a href="/" style="color: #f39c12; text-decoration: none;">• Home</a><br>
-                        <a href="/status" style="color: #f39c12; text-decoration: none;">• Status API</a><br>
-                        <a href="/health" style="color: #f39c12; text-decoration: none;">• Health Check</a><br>
-                        <a href="/qr" style="color: #f39c12; text-decoration: none;">• QR Code Page</a><br>
-                        <a href="/admin" style="color: #f39c12; text-decoration: none;">• Admin Panel (current)</a><br>
+                        <a href="/" style="color: #2FA1FF; text-decoration: none;">• Home</a><br>
+                        <a href="/status" style="color: #2FA1FF; text-decoration: none;">• Status API</a><br>
+                        <a href="/health" style="color: #2FA1FF; text-decoration: none;">• Health Check</a><br>
+                        <a href="/qr" style="color: #2FA1FF; text-decoration: none;">• QR Code Page</a><br>
+                        <a href="/admin" style="color: #2FA1FF; text-decoration: none;">• Admin Panel (current)</a><br>
                     </div>
                 </div>
             </div>
