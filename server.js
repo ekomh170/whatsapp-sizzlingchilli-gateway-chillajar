@@ -6,10 +6,65 @@ const bodyParser = require("body-parser");
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const QRCode = require("qrcode");
 const TelegramBot = require("node-telegram-bot-api");
+const winston = require("winston");
+const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 8086;
+
+// Setup Winston Logger untuk production logging
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+}
+
+const logger = winston.createLogger({
+    level: process.env.LOG_LEVEL || 'info',
+    format: winston.format.combine(
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        winston.format.errors({ stack: true }),
+        winston.format.printf(info => {
+            const { timestamp, level, message, ...meta } = info;
+            let metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
+            return `[${timestamp}] ${level.toUpperCase()}: ${message} ${metaStr}`;
+        })
+    ),
+    transports: [
+        // Log semua level ke combined.log
+        new winston.transports.File({ 
+            filename: path.join(logsDir, 'combined.log'),
+            maxsize: 5242880, // 5MB
+            maxFiles: 5
+        }),
+        // Log error ke error.log
+        new winston.transports.File({ 
+            filename: path.join(logsDir, 'error.log'), 
+            level: 'error',
+            maxsize: 5242880,
+            maxFiles: 5
+        }),
+        // Console log untuk development
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.colorize(),
+                winston.format.printf(info => {
+                    const { timestamp, level, message } = info;
+                    return `[${timestamp}] ${level}: ${message}`;
+                })
+            )
+        })
+    ]
+});
+
+// Helper function untuk logging
+const log = {
+    info: (message, meta = {}) => logger.info(message, meta),
+    error: (message, meta = {}) => logger.error(message, meta),
+    warn: (message, meta = {}) => logger.warn(message, meta),
+    debug: (message, meta = {}) => logger.debug(message, meta)
+};
 
 app.use(bodyParser.json());
 // Serve static files dari folder public (images, css, js, dll)
@@ -61,13 +116,25 @@ client.on("qr", (qr) => {
     } catch (e) {
         console.warn("qrcode-terminal tidak tersedia:", e.message);
     }
-    // Kirim QR code ke Telegram sebagai gambar jika bot dan chat id tersedia
+    
+    /**
+     * [FITUR DINONAKTIFKAN] Kirim QR Code ke Telegram
+     * 
+     * Fitur ini akan mengirim QR code secara otomatis ke Telegram Bot
+     * ketika WhatsApp memerlukan autentikasi ulang.
+     * 
+     * Untuk mengaktifkan:
+     * 1. Pastikan TELEGRAM_BOT_TOKEN dan TELEGRAM_CHAT_ID sudah diisi di .env
+     * 2. Uncomment blok kode di bawah ini
+     * 3. Restart aplikasi
+     * 
+     * Untuk menonaktifkan: Comment kembali blok kode ini (sudah dinonaktifkan)
+     */
+    /*
     if (telegramBot && telegramChatId) {
-        // Generate QR code PNG ke buffer
         QRCode.toBuffer(qr, { type: "png" }, (err, buffer) => {
             if (err) {
                 console.error("Gagal generate QR PNG untuk Telegram:", err);
-                // Fallback: kirim string QR
                 telegramBot.sendMessage(
                     telegramChatId,
                     `Scan QR WhatsApp:\n\n${qr}`
@@ -90,6 +157,7 @@ client.on("qr", (qr) => {
             }
         });
     }
+    */
 });
 
 let isClientReady = false;
@@ -1116,6 +1184,136 @@ app.post("/admin/logout", async (req, res) => {
             status: false,
             message: "Gagal logout: " + err.message
         });
+    }
+});
+
+// ============================================
+// ENDPOINT: Logs Management (Production Ready)
+// ============================================
+
+/**
+ * GET /admin/logs/list
+ * Daftar semua file log yang tersedia
+ */
+app.get("/admin/logs/list", (req, res) => {
+    try {
+        const logsDir = path.join(__dirname, 'logs');
+        if (!fs.existsSync(logsDir)) {
+            return res.json({ status: true, files: [] });
+        }
+        
+        const files = fs.readdirSync(logsDir)
+            .filter(file => file.endsWith('.log'))
+            .map(file => {
+                const stats = fs.statSync(path.join(logsDir, file));
+                return {
+                    name: file,
+                    size: stats.size,
+                    sizeHuman: (stats.size / 1024).toFixed(2) + ' KB',
+                    modified: stats.mtime
+                };
+            })
+            .sort((a, b) => b.modified - a.modified);
+        
+        res.json({ status: true, files });
+    } catch (err) {
+        log.error('Error listing log files', { error: err.message });
+        res.status(500).json({ status: false, message: err.message });
+    }
+});
+
+/**
+ * GET /admin/logs/view/:filename
+ * Lihat isi file log tertentu (last N lines)
+ */
+app.get("/admin/logs/view/:filename", (req, res) => {
+    try {
+        const { filename } = req.params;
+        const lines = parseInt(req.query.lines) || 500; // Default 500 baris terakhir
+        
+        // Security: prevent directory traversal
+        if (filename.includes('..') || filename.includes('/') || filename.includes('\\\\')) {
+            return res.status(400).json({ status: false, message: 'Invalid filename' });
+        }
+        
+        const logPath = path.join(__dirname, 'logs', filename);
+        if (!fs.existsSync(logPath)) {
+            return res.status(404).json({ status: false, message: 'Log file not found' });
+        }
+        
+        const content = fs.readFileSync(logPath, 'utf8');
+        const allLines = content.split('\\n');
+        const lastLines = allLines.slice(-lines).join('\\n');
+        
+        res.json({ 
+            status: true, 
+            filename,
+            totalLines: allLines.length,
+            returnedLines: Math.min(lines, allLines.length),
+            content: lastLines 
+        });
+    } catch (err) {
+        log.error('Error viewing log file', { error: err.message });
+        res.status(500).json({ status: false, message: err.message });
+    }
+});
+
+/**
+ * GET /admin/logs/combined
+ * Gabungan semua logs untuk quick view
+ */
+app.get("/admin/logs/combined", (req, res) => {
+    try {
+        const lines = parseInt(req.query.lines) || 1000;
+        const logsDir = path.join(__dirname, 'logs');
+        
+        if (!fs.existsSync(logsDir)) {
+            return res.json({ status: true, content: 'No logs available yet.' });
+        }
+        
+        // Baca combined.log
+        const combinedPath = path.join(logsDir, 'combined.log');
+        if (!fs.existsSync(combinedPath)) {
+            return res.json({ status: true, content: 'Combined log not available yet.' });
+        }
+        
+        const content = fs.readFileSync(combinedPath, 'utf8');
+        const allLines = content.split('\\n');
+        const lastLines = allLines.slice(-lines).join('\\n');
+        
+        res.json({
+            status: true,
+            totalLines: allLines.length,
+            returnedLines: Math.min(lines, allLines.length),
+            content: lastLines
+        });
+    } catch (err) {
+        log.error('Error reading combined logs', { error: err.message });
+        res.status(500).json({ status: false, message: err.message });
+    }
+});
+
+/**
+ * DELETE /admin/logs/clear
+ * Hapus semua log files (use with caution!)
+ */
+app.delete("/admin/logs/clear", (req, res) => {
+    try {
+        const logsDir = path.join(__dirname, 'logs');
+        if (!fs.existsSync(logsDir)) {
+            return res.json({ status: true, message: 'No logs to clear' });
+        }
+        
+        const files = fs.readdirSync(logsDir).filter(f => f.endsWith('.log'));
+        files.forEach(file => {
+            fs.unlinkSync(path.join(logsDir, file));
+        });
+        
+        log.warn('All logs cleared by admin');
+        res.json({ status: true, message: `${files.length} log files cleared`, filesDeleted: files });
+    } catch (err) {
+        log.error('Error clearing logs', { error: err.message });
+        res.status(500).json({ status: false, message: err.message });
     }
 });
 

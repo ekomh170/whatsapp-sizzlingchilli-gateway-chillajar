@@ -37,7 +37,8 @@
         "express": "^4.18.2",
         "qrcode": "^1.5.4",
         "qrcode-terminal": "^0.12.0",
-        "node-telegram-bot-api": "^0.66.0"
+        "node-telegram-bot-api": "^0.66.0",
+        "winston": "^3.11.0"
     },
     "engines": {
         "node": ">=18.0.0"

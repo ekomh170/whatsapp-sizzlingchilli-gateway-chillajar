@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Gateway - Production Logs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .log-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .log-header h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .log-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .log-content {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .log-content::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .log-content::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border-radius: 10px;
+        }
+
+        .log-content::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 10px;
+        }
+
+        .log-content::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        .log-line-error {
+            color: #f48771;
+            font-weight: 600;
+        }
+
+        .log-line-warn {
+            color: #dcdcaa;
+        }
+
+        .log-line-info {
+            color: #4ec9b0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-list {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .file-item {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item:hover {
+            background: #f8f9fa;
+        }
+
+        .file-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .file-meta {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Production Logs Viewer</h1>
+            <p>Monitor dan analisa logs WhatsApp Gateway secara real-time</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="loadCombinedLogs()">
+                🔄 Refresh Logs
+            </button>
+            <button class="btn btn-secondary" onclick="loadLogFiles()">
+                📁 List Log Files
+            </button>
+            <button class="btn btn-danger" onclick="clearLogs()">
+                🗑️ Clear All Logs
+            </button>
+            <select id="lineCount" onchange="loadCombinedLogs()">
+                <option value="100">Last 100 lines</option>
+                <option value="500" selected>Last 500 lines</option>
+                <option value="1000">Last 1000 lines</option>
+                <option value="5000">Last 5000 lines</option>
+            </select>
+            <button class="btn btn-secondary" onclick="toggleAutoRefresh()">
+                ⏱️ <span id="autoRefreshText">Enable Auto-Refresh</span>
+            </button>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="file-list" id="fileListContainer" style="display: none;">
+            <h2 style="margin-bottom: 15px; color: #333;">📁 Available Log Files</h2>
+            <div id="fileList"></div>
+        </div>
+
+        <div class="log-container">
+            <div class="log-header">
+                <h2>📄 Combined Logs</h2>
+                <div class="log-stats">
+                    <span>Total Lines: <strong id="totalLines">-</strong></span>
+                    <span>Showing: <strong id="shownLines">-</strong></span>
+                    <span>Last Update: <strong id="lastUpdate">-</strong></span>
+                </div>
+            </div>
+            <div class="log-content" id="logContent">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading logs...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval = null;
+
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        async function loadCombinedLogs() {
+            const lines = document.getElementById('lineCount').value;
+            const logContent = document.getElementById('logContent');
+            
+            logContent.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading logs...</p></div>';
+            
+            try {
+                const response = await fetch(`/admin/logs/combined?lines=${lines}`);
+                const data = await response.json();
+                
+                if (data.status) {
+                    document.getElementById('totalLines').textContent = data.totalLines || '-';
+                    document.getElementById('shownLines').textContent = data.returnedLines || '-';
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                    
+                    // Highlight log levels
+                    let content = data.content || 'No logs available';
+                    content = content
+                        .replace(/ERROR:/g, '<span class="log-line-error">ERROR:</span>')
+                        .replace(/WARN:/g, '<span class="log-line-warn">WARN:</span>')
+                        .replace(/INFO:/g, '<span class="log-line-info">INFO:</span>');
+                    
+                    logContent.innerHTML = content;
+                    
+                    // Auto scroll to bottom
+                    logContent.scrollTop = logContent.scrollHeight;
+                } else {
+                    logContent.innerHTML = `<div style="color: #f48771;">Error: ${data.message}</div>`;
+                }
+            } catch (err) {
+                logContent.innerHTML = `<div style="color: #f48771;">Failed to load logs: ${err.message}</div>`;
+            }
+        }
+
+        async function loadLogFiles() {
+            const fileListContainer = document.getElementById('fileListContainer');
+            const fileList = document.getElementById('fileList');
+            
+            fileListContainer.style.display = 'block';
+            fileList.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading file list...</p></div>';
+            
+            try {
+                const response = await fetch('/admin/logs/list');
+                const data = await response.json();
+                
+                if (data.status && data.files.length > 0) {
+                    fileList.innerHTML = data.files.map(file => `
+                        <div class="file-item">
+                            <div class="file-info">
+                                <span class="file-name">${file.name}</span>
+                                <span class="file-meta">${file.sizeHuman} • ${new Date(file.modified).toLocaleString()}</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="viewLogFile('${file.name}')">View</button>
+                        </div>
+                    `).join('');
+                } else {
+                    fileList.innerHTML = '<p style="color: #999; text-align: center;">No log files available</p>';
+                }
+            } catch (err) {
+                fileList.innerHTML = `<div style="color: #f48771;">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function viewLogFile(filename) {
+            const lines = document.getElementById('lineCount').value;
+            const logContent = document.getElementById('logContent');
+            
+            logContent.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading file...</p></div>';
+            
+            try {
+                const response = await fetch(`/admin/logs/view/${filename}?lines=${lines}`);
+                const data = await response.json();
+                
+                if (data.status) {
+                    document.getElementById('totalLines').textContent = data.totalLines;
+                    document.getElementById('shownLines').textContent = data.returnedLines;
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                    
+                    let content = data.content;
+                    content = content
+                        .replace(/ERROR:/g, '<span class="log-line-error">ERROR:</span>')
+                        .replace(/WARN:/g, '<span class="log-line-warn">WARN:</span>')
+                        .replace(/INFO:/g, '<span class="log-line-info">INFO:</span>');
+                    
+                    logContent.innerHTML = content;
+                    logContent.scrollTop = logContent.scrollHeight;
+                    
+                    showAlert(`Loaded: ${filename}`, 'success');
+                } else {
+                    logContent.innerHTML = `<div style="color: #f48771;">Error: ${data.message}</div>`;
+                }
+            } catch (err) {
+                logContent.innerHTML = `<div style="color: #f48771;">Error: ${err.message}</div>`;
+            }
+        }
+
+        async function clearLogs() {
+            if (!confirm('⚠️ Yakin ingin menghapus SEMUA log files? Aksi ini tidak bisa dibatalkan!')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/logs/clear', { method: 'DELETE' });
+                const data = await response.json();
+                
+                if (data.status) {
+                    showAlert(`✅ ${data.filesDeleted.length} log files berhasil dihapus`, 'success');
+                    loadCombinedLogs();
+                } else {
+                    showAlert('❌ Gagal menghapus logs: ' + data.message, 'danger');
+                }
+            } catch (err) {
+                showAlert('❌ Error: ' + err.message, 'danger');
+            }
+        }
+
+        function toggleAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                document.getElementById('autoRefreshText').textContent = 'Enable Auto-Refresh';
+                showAlert('Auto-refresh dinonaktifkan', 'success');
+            } else {
+                autoRefreshInterval = setInterval(loadCombinedLogs, 5000);
+                document.getElementById('autoRefreshText').textContent = 'Disable Auto-Refresh';
+                showAlert('Auto-refresh aktif (setiap 5 detik)', 'success');
+            }
+        }
+
+        // Load logs on page load
+        window.addEventListener('load', () => {
+            loadCombinedLogs();
+        });
+    </script>
+</body>
+</html>
