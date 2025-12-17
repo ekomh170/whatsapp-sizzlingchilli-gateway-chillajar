@@ -14,7 +14,8 @@ services:
       - PORT=8086
       
       # WhatsApp Configuration
-      - WA_SENDER=${WA_SENDER:-62xxxxxxxxxx}
+      # Kosongkan untuk auto-detect nomor dari QR scan
+      - WA_SENDER=${WA_SENDER:-}
       
       # Telegram Bot (Optional - untuk notifikasi QR Code)
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
