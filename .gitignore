@@ -35,3 +35,5 @@ yarn.lock
 # Local notes & docs
 notes/
 doc-notes/
+
+AGENTS.md
