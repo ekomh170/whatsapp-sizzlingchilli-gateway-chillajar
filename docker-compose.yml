@@ -12,31 +12,15 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=8086
-      
-      # WhatsApp Configuration
-      # Kosongkan untuk auto-detect nomor dari QR scan
       - WA_SENDER=${WA_SENDER:-}
-      
-      # Telegram Bot (Optional - untuk notifikasi QR Code)
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
-      
-      # Laravel Integration
       - LARAVEL_API_URL=http://ekomh29.biz.id/api
       - LARAVEL_WEBHOOK_URL=http://ekomh29.biz.id/api/webhook/whatsapp
       - LARAVEL_API_KEY=${LARAVEL_API_KEY:-}
-      
-      # Security
       - WA_API_KEY=${WA_API_KEY:-}
-      
-      # Puppeteer Configuration (Linux)
-      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
     volumes:
-      # Persistent WhatsApp session data
-      - wa_sessions:/app/.wwebjs_auth
-      - wa_cache:/app/.wwebjs_cache
-      - wa_media:/app/media
+      - wa_auth:/app/auth_info_baileys
       - wa_logs:/app/logs
     networks:
       - chillajar-backend-laravel_chillajar-network
@@ -48,7 +32,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 120s
+      start_period: 60s
 
 networks:
   chillajar-backend-laravel_chillajar-network:
@@ -57,11 +41,7 @@ networks:
     driver: bridge
 
 volumes:
-  wa_sessions:
-    driver: local
-  wa_cache:
-    driver: local
-  wa_media:
+  wa_auth:
     driver: local
   wa_logs:
     driver: local
