@@ -190,3 +190,7 @@ POST /admin/logout       → logout & reset sesi
 Apache 2.0 — lihat [LICENSE](LICENSE).
 
 Gateway ini menggunakan [Baileys](https://github.com/WhiskeySockets/Baileys) yang dilisensikan di bawah MIT License.
+
+## Third-Party Licenses
+
+- Baileys (MIT) — lihat [NOTICE](NOTICE).

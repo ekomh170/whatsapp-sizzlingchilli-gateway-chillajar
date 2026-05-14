@@ -1,19 +1,19 @@
 # Additional License Notice
 
-This project is a modification and usage of the open source library [whatsapp-web.js](https://wwebjs.dev/) by Pedro S Lopez, licensed under the Apache License 2.0. All original code and documentation remain under the Apache License 2.0 as provided in the LICENSE file.
+This project uses the open source library [Baileys](https://github.com/WhiskeySockets/Baileys) by WhiskeySockets, licensed under the MIT License. Baileys remains under its own license and copyright.
 
 ## Additional Notice for Modifications (Chill Ajar)
 
-Modifications, configuration, and additional documentation made for integration with the Chill Ajar system (including setup, deployment scripts, and endpoint adjustments) may be used, copied, modified, and distributed for educational, academic, or internal development purposes, provided that:
+Modifications, configuration, and documentation made for integration with the Chill Ajar system (including setup, deployment scripts, and endpoint adjustments) are part of this repository and are licensed under the Apache License 2.0 as stated in the LICENSE file.
 
-- The original license (Apache License 2.0) is retained and not removed.
-- Attribution is given to the original developer (Pedro S Lopez, whatsapp-web.js) and the modifier (Eko Muchamad Haryono, Chill Ajar).
-- This file (LICENSE-ADDITIONAL.txt) is included with any distribution of the modified project.
+- Retain the Apache License 2.0 (LICENSE) with any distribution of this project.
+- Retain attribution to Baileys (WhiskeySockets) and to the Chill Ajar contributors for the modifications in this repository.
+- Include this file (LICENSE-ADDITIONAL.txt) with any distribution of this project.
 
-For any use beyond these terms, please refer to the Apache License 2.0 and the whatsapp-web.js repository.
+For the Baileys dependency itself, refer to the MIT License in the Baileys repository.
 
 ---
 
 **Note:**
-- All core WhatsApp gateway features remain subject to the license and copyright of whatsapp-web.js.
-- The Chill Ajar modifications only apply to integration adjustments and additional documentation.
+- WhatsApp protocol handling is provided by Baileys; this project wraps it as a gateway service.
+- This additional notice is informational and does not modify the LICENSE.
