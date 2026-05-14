@@ -46,7 +46,7 @@ if [ ! -z "$STACK_ID" ]; then
         -d @- \
         "${PORTAINER_URL}/api/stacks/${STACK_ID}?endpointId=${ENDPOINT_ID}" <<EOF
 {
-    "stackFileContent": "$(cat docker-compose.yml | sed 's/"/\\"/g' | tr '\n' ' ')",
+    "stackFileContent": "$(cat docker/docker-compose.portainer.yml | sed 's/"/\\"/g' | tr '\n' ' ')",
     "env": $(cat .env | grep -v '^#' | grep -v '^$' | jq -R 'split("=") | {name:.[0],value:.[1]}' | jq -s '.')
 }
 EOF
@@ -64,7 +64,7 @@ else
         "${PORTAINER_URL}/api/stacks?type=2&method=string&endpointId=${ENDPOINT_ID}" <<EOF
 {
     "name": "${STACK_NAME}",
-    "stackFileContent": "$(cat docker-compose.yml | sed 's/"/\\"/g' | tr '\n' ' ')",
+    "stackFileContent": "$(cat docker/docker-compose.portainer.yml | sed 's/"/\\"/g' | tr '\n' ' ')",
     "env": $(cat .env | grep -v '^#' | grep -v '^$' | jq -R 'split("=") | {name:.[0],value:.[1]}' | jq -s '.')
 }
 EOF

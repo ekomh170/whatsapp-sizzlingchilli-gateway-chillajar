@@ -33,7 +33,7 @@ echo -e "${YELLOW}Building image: ${IMAGE_NAME}:${TAG}${NC}"
 echo ""
 
 # Build image
-docker build -t ${IMAGE_NAME}:${TAG} .
+docker build -f docker/Dockerfile -t ${IMAGE_NAME}:${TAG} .
 
 echo ""
 echo -e "${GREEN}✓ Image built successfully!${NC}"
@@ -65,6 +65,6 @@ echo "1. Deploy to server with docker-compose"
 echo "2. Or deploy via Portainer UI"
 echo ""
 echo "Commands:"
-echo "  docker-compose up -d"
-echo "  docker logs chillajar_wa_gateway -f"
+echo "  npm run docker:up       # production"
+echo "  npm run docker:logs     # lihat logs"
 echo ""

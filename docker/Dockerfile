@@ -6,8 +6,9 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY server.js .
+COPY src/ ./src/
 COPY public/ ./public/
-COPY entrypoint.sh /entrypoint.sh
+COPY docker/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh \
     && mkdir -p /app/auth_info_baileys /app/logs

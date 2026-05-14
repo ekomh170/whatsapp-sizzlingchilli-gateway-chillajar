@@ -32,7 +32,7 @@ Write-Host ""
 
 # Build image
 Write-Host "Building Docker image..." -ForegroundColor Yellow
-docker build -t chillajar-wa-gateway:latest .
+docker build -f docker/Dockerfile -t chillajar-wa-gateway:latest .
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: Build failed!" -ForegroundColor Red
     exit 1
@@ -42,8 +42,8 @@ Write-Host ""
 
 # Deploy dengan docker-compose
 Write-Host "Deploying with docker-compose..." -ForegroundColor Yellow
-docker-compose down
-docker-compose up -d
+docker compose -f docker/docker-compose.yml down
+docker compose -f docker/docker-compose.yml up -d
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: Deployment failed!" -ForegroundColor Red
     exit 1

@@ -4,7 +4,12 @@
     "description": "WhatsApp Gateway for ChillAjar using Baileys (no Puppeteer)",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js"
+        "start": "node server.js",
+        "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+        "docker:up:local": "docker compose -f docker/docker-compose.local.yml up -d",
+        "docker:down": "docker compose -f docker/docker-compose.yml down",
+        "docker:build": "docker compose -f docker/docker-compose.yml build --no-cache",
+        "docker:logs": "docker compose -f docker/docker-compose.yml logs -f"
     },
     "repository": {
         "type": "git",

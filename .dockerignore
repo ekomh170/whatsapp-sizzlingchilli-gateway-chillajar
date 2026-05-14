@@ -30,11 +30,9 @@ notes/
 .idea/
 *.pem
 *.key
-build-and-push.sh
-deploy-portainer.sh
-deploy.ps1
+scripts/
 
-# Docker meta
-Dockerfile
-docker-compose*.yml
+# Docker meta (entrypoint.sh tetap diikutkan karena di-COPY oleh Dockerfile)
+docker/Dockerfile
+docker/docker-compose*.yml
 .dockerignore

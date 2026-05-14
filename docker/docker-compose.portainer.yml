@@ -3,8 +3,8 @@ version: '3.8'
 services:
   wa-gateway:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: chillajar_wa_gateway
     restart: on-failure:5
     ports:
