@@ -1,0 +1,59 @@
+services:
+  wa-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chillajar_wa_gateway
+    restart: on-failure:5
+    ports:
+      - "9600:9600"
+    environment:
+      - NODE_ENV=production
+      - PORT=9600
+
+      # WhatsApp Configuration
+      # Kosongkan untuk auto-detect nomor dari QR scan
+      - WA_SENDER=${WA_SENDER:-}
+
+      # Telegram Bot (Optional - untuk notifikasi QR Code)
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+
+      # Laravel Integration
+      - LARAVEL_API_URL=${LARAVEL_API_URL:-http://host.docker.internal:9600/api}
+      - LARAVEL_WEBHOOK_URL=${LARAVEL_WEBHOOK_URL:-http://host.docker.internal:9600/api/webhook/whatsapp}
+      - LARAVEL_API_KEY=${LARAVEL_API_KEY:-}
+
+      # Security
+      - WA_API_KEY=${WA_API_KEY:-}
+
+    volumes:
+      # Persistent WhatsApp session data
+      - wa_sessions_local:/app/.wwebjs_auth
+      - wa_cache_local:/app/.wwebjs_cache
+      - wa_media_local:/app/media
+      - wa_logs_local:/app/logs
+    networks:
+      - wa-network
+    labels:
+      - "traefik.enable=false"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:9600/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+networks:
+  wa-network:
+    driver: bridge
+
+volumes:
+  wa_sessions_local:
+    driver: local
+  wa_cache_local:
+    driver: local
+  wa_media_local:
+    driver: local
+  wa_logs_local:
+    driver: local

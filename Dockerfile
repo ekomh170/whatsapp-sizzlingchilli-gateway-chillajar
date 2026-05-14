@@ -1,54 +1,32 @@
 # Dockerfile untuk WhatsApp Gateway ChillAjar
-FROM node:18-slim
+FROM ghcr.io/puppeteer/puppeteer:latest
 
-# Install dependencies untuk Puppeteer
-RUN apt-get update && apt-get install -y \
-    chromium \
-    chromium-sandbox \
-    fonts-liberation \
-    libappindicator3-1 \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libgdk-pixbuf2.0-0 \
-    libnspr4 \
-    libnss3 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    xdg-utils \
-    wget \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+USER root
 
 # Set working directory
 WORKDIR /app
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_CACHE_DIR=/home/pptruser/.cache/puppeteer
 
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies dengan fallback ke npm install
 # npm ci lebih strict, jika gagal fallback ke npm install
-RUN npm ci --only=production || npm install --production
+RUN npm ci --omit=dev || npm install --omit=dev
 
 # Copy application files
 COPY . .
 
 # Copy and set permissions for entrypoint
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-# Create directories for sessions and media
-RUN mkdir -p /app/.wwebjs_auth /app/.wwebjs_cache /app/sessions /app/media /app/logs
-
-# Set permissions
-RUN chown -R node:node /app
+RUN chmod +x /entrypoint.sh \
+    && mkdir -p /app/.wwebjs_auth /app/.wwebjs_cache /app/sessions /app/media /app/logs \
+    && chown -R pptruser:pptruser /app
 
 # Switch to non-root user
-USER node
+USER pptruser
 
 # Expose port
 EXPOSE 8086
