@@ -1,14 +1,10 @@
 {
     "name": "whatsapp-sizzlingchilli-gateway",
-    "version": "1.0.0",
-    "description": "WhatsApp Gateway for ChillAjar using whatsapp-web.js",
+    "version": "2.0.0",
+    "description": "WhatsApp Gateway for ChillAjar using Baileys (no Puppeteer)",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js",
-        "test": "mocha tests --recursive --timeout 5000",
-        "test-single": "mocha",
-        "shell": "node --experimental-repl-await ./shell.js",
-        "generate-docs": "npx jsdoc --configure .jsdoc.json --verbose"
+        "start": "node server.js"
     },
     "repository": {
         "type": "git",
@@ -16,11 +12,8 @@
     },
     "keywords": [
         "whatsapp",
-        "whatsapp-web",
+        "baileys",
         "api",
-        "bot",
-        "client",
-        "node",
         "gateway",
         "chillajar"
     ],
@@ -31,13 +24,13 @@
     },
     "homepage": "https://github.com/ekomh170/whatsapp-sizzlingchilli-gateway-chillajar",
     "dependencies": {
-        "whatsapp-web.js": "^1.23.0",
+        "@whiskeysockets/baileys": "^6.7.21",
         "body-parser": "^1.20.2",
         "dotenv": "^16.0.0",
         "express": "^4.18.2",
+        "node-telegram-bot-api": "^0.66.0",
         "qrcode": "^1.5.4",
         "qrcode-terminal": "^0.12.0",
-        "node-telegram-bot-api": "^0.66.0",
         "winston": "^3.11.0"
     },
     "engines": {
