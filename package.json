@@ -29,11 +29,10 @@
     },
     "homepage": "https://github.com/ekomh170/whatsapp-sizzlingchilli-gateway-chillajar",
     "dependencies": {
-        "@whiskeysockets/baileys": "^6.7.21",
-        "body-parser": "^1.20.2",
+        "@whiskeysockets/baileys": "^6.7.24",
+        "body-parser": "^1.20.9",
         "dotenv": "^16.0.0",
-        "express": "^4.18.2",
-        "node-telegram-bot-api": "^0.66.0",
+        "express": "^4.22.3",
         "qrcode": "^1.5.4",
         "qrcode-terminal": "^0.12.0",
         "winston": "^3.11.0"
